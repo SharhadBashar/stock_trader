@@ -1,5 +1,6 @@
 # stock_trader
 A platform that will eventually become a bot trader
+https://www.youtube.com/watch?v=8IQ8PttfmDU
 
 
 Stock Trader
