@@ -1,0 +1,13 @@
+[project]
+name = "stock_trader"
+version = "0.0.1"
+description = "AI-powered Stock Trader"
+authors = [
+    {name = "Sharhad", email = "sharhadbashar09@gmail.com"},
+]
+requires-python = ">3.12,<3.15"
+dependencies = [
+    "fastapi>=0.139.0",
+    "openai-agents>=0.18.2",
+    "pydantic-ai>=2.9.0",
+]
