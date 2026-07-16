@@ -343,6 +343,15 @@ wheels = [
 ]
 
 [[package]]
+name = "diskcache"
+version = "5.6.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/21/1c1ffc1a039ddcc459db43cc108658f32c57d271d7289a2794e401d0fdb6/diskcache-5.6.3.tar.gz", hash = "sha256:2c3a3fa2743d8535d832ec61c2054a1641f41775aa7c556758a109941e33e4fc", size = 67916, upload-time = "2023-08-31T06:12:00.316Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3f/27/4570e78fc0bf5ea0ca45eb1de3818a23787af9b390c0b0a0033a1b8236f9/diskcache-5.6.3-py3-none-any.whl", hash = "sha256:5e31b2d5fbad117cc363ebaf6b689474db18a1f6438bc82358b024abd4c2ca19", size = 45550, upload-time = "2023-08-31T06:11:58.822Z" },
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1025,6 +1034,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pathvalidate"
+version = "3.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/2a/52a8da6fe965dea6192eb716b357558e103aea0a1e9a8352ad575a8406ca/pathvalidate-3.3.1.tar.gz", hash = "sha256:b18c07212bfead624345bb8e1d6141cdcf15a39736994ea0b94035ad2b1ba177", size = 63262, upload-time = "2025-06-15T09:07:20.736Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9a/70/875f4a23bfc4731703a5835487d0d2fb999031bd415e7d17c0ae615c18b7/pathvalidate-3.3.1-py3-none-any.whl", hash = "sha256:5263baab691f8e1af96092fa5137ee17df5bdfbd6cff1fcac4d6ef4bc2e1735f", size = 24305, upload-time = "2025-06-15T09:07:19.117Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1145,6 +1163,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2f/cb/1d5b06a9301b211c5dc4f705d82af1ed5ca3dfab59d55c590e5065ff09de/pydantic_ai-2.9.0.tar.gz", hash = "sha256:5b4a46bd717960272133a8ac46f5130f92723983bd8f3e861393a8fd1f507c93", size = 18520, upload-time = "2026-07-11T03:19:27.088Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/2d/dffa4f32729780a9d8bc74f1e0f77ef74f363a8bc5e46ec70ff8c0343ab1/pydantic_ai-2.9.0-py3-none-any.whl", hash = "sha256:e1470c69141d39d633ef0e0bf2b7e9f93a533f82d9e4a931e762f631b077b0e7", size = 7714, upload-time = "2026-07-11T03:19:18.439Z" },
+]
+
+[[package]]
+name = "pydantic-ai-harness"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic-ai-slim" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/a9/43f9f227bc8e8bb821e491bd9a3681e92aa11e60e7ee6e5589928efa7708/pydantic_ai_harness-0.7.0.tar.gz", hash = "sha256:b0255a347c346696f951cedef6e9664a04ce6672afe9cf4736435cc9c705a2ab", size = 1020449, upload-time = "2026-07-14T03:01:46.136Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e5/27/2dd853791bbcc9ce687c072a81adfde16576bb99aebd426c27f40812d3bd/pydantic_ai_harness-0.7.0-py3-none-any.whl", hash = "sha256:1895d7ac1fa101621294505387bccdceedd1e1b67b1caaa7777e7a7d0a4de8b7", size = 313712, upload-time = "2026-07-14T03:01:44.204Z" },
 ]
 
 [[package]]
@@ -1693,16 +1724,24 @@ name = "stock-trader"
 version = "0.0.1"
 source = { virtual = "." }
 dependencies = [
+    { name = "diskcache" },
     { name = "fastapi" },
+    { name = "logfire" },
     { name = "openai-agents" },
+    { name = "pathvalidate" },
     { name = "pydantic-ai" },
+    { name = "pydantic-ai-harness" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "diskcache", specifier = ">=5.6.3" },
     { name = "fastapi", specifier = ">=0.139.0" },
+    { name = "logfire", specifier = ">=4.37.0" },
     { name = "openai-agents", specifier = ">=0.18.2" },
+    { name = "pathvalidate", specifier = ">=3.3.1" },
     { name = "pydantic-ai", specifier = ">=2.9.0" },
+    { name = "pydantic-ai-harness", specifier = ">=0.7.0" },
 ]
 
 [[package]]
