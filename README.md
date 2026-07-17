@@ -29,3 +29,11 @@ Stock Trader
 4. phone app for updates like claw bot
 
 5. perform trades
+
+
+## TODO
+1. add tool approval
+2. message history
+	- agentic message retrival
+3. comapction
+	- 
