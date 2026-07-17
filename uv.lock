@@ -1731,6 +1731,7 @@ dependencies = [
     { name = "pathvalidate" },
     { name = "pydantic-ai" },
     { name = "pydantic-ai-harness" },
+    { name = "sse-starlette" },
 ]
 
 [package.metadata]
@@ -1742,6 +1743,7 @@ requires-dist = [
     { name = "pathvalidate", specifier = ">=3.3.1" },
     { name = "pydantic-ai", specifier = ">=2.9.0" },
     { name = "pydantic-ai-harness", specifier = ">=0.7.0" },
+    { name = "sse-starlette", specifier = ">=3.3.3" },
 ]
 
 [[package]]

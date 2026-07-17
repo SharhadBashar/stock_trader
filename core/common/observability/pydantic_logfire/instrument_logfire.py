@@ -70,6 +70,16 @@ def instrument_logfire(
 
             return async_wrapper
 
+        # for async generators (e.g. SSE stream handlers)
+        elif inspect.isasyncgenfunction(obj):
+
+            @functools.wraps(obj)
+            def async_gen_wrapper(*args, **kwargs):
+                _configure_logfire(obj.__name__)
+                return obj(*args, **kwargs)
+
+            return async_gen_wrapper
+
         # for regular functions, wrap the function itself
         elif inspect.isfunction(obj):
 
