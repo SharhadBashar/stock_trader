@@ -1,9 +1,11 @@
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.toolsets import AbstractToolset
 
-from core.agents.profile_agent.prompt import PROMPT
 from core.common.pydantic_ai.models import gpt_5_6_luna
-from core.robinhood.tools import robinhood_account_toolset
+
+from core.robinhood.agents.profile_agent.prompt import PROMPT
+from core.robinhood.tools import robinhood_toolset
+from core.robinhood.tool_mappings import RobinhoodToolType
 
 profile_agent = Agent(
     gpt_5_6_luna,
@@ -14,4 +16,4 @@ profile_agent = Agent(
 
 @profile_agent.toolset(id = 'robinhood_account_tools')
 def robinhood_account_tools(_ctx: RunContext) -> AbstractToolset:
-    return robinhood_account_toolset().defer_loading()
+    return robinhood_toolset(RobinhoodToolType.ACCOUNT).defer_loading()

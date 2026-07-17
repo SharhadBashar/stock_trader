@@ -4,7 +4,7 @@ from key_value.aio.stores.disk import DiskStore
 from pydantic_ai.mcp import MCPToolset
 
 from core.robinhood.constants import ROBINHOOD_TRADING_MCP_URL, TOKEN_CACHE_DIR
-from core.robinhood.tool_mappings import ROBINHOOD_TOOLS
+from core.robinhood.tool_mappings import ROBINHOOD_TOOLS, RobinhoodToolType
 
 def robinhood_oauth():
     return OAuth(
@@ -20,8 +20,8 @@ def robinhood_client():
 def robinhood_tools():
     return MCPToolset(ROBINHOOD_TRADING_MCP_URL, id = "robinhood_trading", auth = robinhood_oauth())
 
-def robinhood_account_toolset() -> MCPToolset:
-    account_tools = set(ROBINHOOD_TOOLS['account'])
+def robinhood_toolset(tool_type: RobinhoodToolType | None = None) -> MCPToolset:
+    tools = set(ROBINHOOD_TOOLS[tool_type]) if tool_type is not None else set(ROBINHOOD_TOOLS.values())
     return robinhood_tools().filtered(
-        lambda _, tool: tool.name in account_tools
+        lambda _, tool: tool.name in tools
     )
