@@ -25,6 +25,7 @@ from pydantic_ai import exceptions as pydantic_ai_exceptions
 
 from core.orchestrator.agent import orchestrator_agent
 from core.common.observability.pydantic_logfire.instrument_logfire import instrument_logfire, get_logfire
+from core.common.observability.pydantic_logfire.utils import final_output_attributes
 from core.common.sse import (
     ChatDoneEvent,
     ErrorEvent,
@@ -115,17 +116,7 @@ async def stream(query: str) -> AsyncGenerator[SSEFragment]:
                             final_output = str(event.result.output) if event.result.output else collected_output
                             logfire.info(
                                 'Final Output',
-                                **{
-                                    'gen_ai.input.messages': [
-                                        {'role': 'user', 'parts': [{'type': 'text', 'content': query}]},
-                                    ],
-                                    'gen_ai.output.messages': [
-                                        {
-                                            'role': 'assistant',
-                                            'parts': [{'type': 'text', 'content': final_output}],
-                                        },
-                                    ],
-                                },
+                                **final_output_attributes(query, final_output),
                             )
                             yield ChatDoneEvent()
 
