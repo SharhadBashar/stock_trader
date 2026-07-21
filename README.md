@@ -33,7 +33,7 @@ Stock Trader
 
 ## TODO
 1. add tool approval
-2. message history
+2. compaction
+3. deep research
+4. message history
 	- agentic message retrival
-3. comapction
-	- 
