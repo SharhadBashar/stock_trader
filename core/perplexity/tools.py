@@ -1,3 +1,5 @@
+import asyncio
+
 from fastmcp import Client
 from fastmcp.client.transports import StdioTransport
 from mcp.client.stdio import get_default_environment
@@ -27,3 +29,18 @@ def perplexity_toolset(tool_type: PerplexityToolType | None = None) -> MCPToolse
         tool_type = PerplexityToolType.ALL
     tools = set(PERPLEXITY_TOOLS[tool_type])
     return toolset.filtered(lambda _, tool: tool.name in tools)
+
+
+async def _list_tools():
+    toolset = perplexity_tools()
+    async with toolset:
+        tools = await toolset.list_tools()
+    print(f'{len(tools)} tools available on the Perplexity MCP:')
+    for tool in tools:
+        description = (tool.description or '').strip()
+        print(f'- {tool.name}: {description}')
+        print('\n')
+
+
+if __name__ == '__main__':
+    asyncio.run(_list_tools())
