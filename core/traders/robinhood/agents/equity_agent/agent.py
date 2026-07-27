@@ -3,13 +3,13 @@ from pydantic_ai.toolsets import AbstractToolset
 
 from core.common.pydantic_ai.models import sonnet_5
 
-from core.robinhood.agents.equity_agent.prompt import PROMPT
-from core.robinhood.tools import robinhood_toolset
-from core.robinhood.tool_mappings import RobinhoodToolType
+from core.traders.robinhood.agents.equity_agent.prompt import PROMPT
+from core.traders.robinhood.tools import robinhood_toolset
+from core.traders.robinhood.tool_mappings import RobinhoodToolType
 
 equity_agent = Agent(
     sonnet_5,
-    name = 'equity_agent',
+    name = 'robinhood_equity_agent',
     description = 'An agent that can look up stock info as well as buy and sell equities and stocks on Robinhood',
     instructions = PROMPT,
 )

@@ -9,7 +9,7 @@ from core.perplexity.tool_mappings import PerplexityToolType
 
 research_agent = Agent(
     gpt_5_6_luna,
-    name = 'research_agent',
+    name = 'perplexity_research_agent',
     description = (
         'An agent that researches markets, companies, news, and trends '
         'using Perplexity search, ask, deep research, and reasoning tools'

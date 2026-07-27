@@ -3,13 +3,13 @@ from pydantic_ai.toolsets import AbstractToolset
 
 from core.common.pydantic_ai.models import gpt_5_6_luna
 
-from core.robinhood.agents.search_agent.prompt import PROMPT
-from core.robinhood.tools import robinhood_toolset
-from core.robinhood.tool_mappings import RobinhoodToolType
+from core.traders.robinhood.agents.search_agent.prompt import PROMPT
+from core.traders.robinhood.tools import robinhood_toolset
+from core.traders.robinhood.tool_mappings import RobinhoodToolType
 
 search_agent = Agent(
     gpt_5_6_luna,
-    name = 'search_agent',
+    name = 'robinhood_search_agent',
     description = 'An agent that searches for information about a company on Robinhood',
     instructions = PROMPT,
 )

@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 
-from core.liquid.tools import liquid_tools
+from core.traders.liquid.tools import liquid_tools
 
 
 async def list_tools():

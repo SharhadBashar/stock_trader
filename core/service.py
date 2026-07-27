@@ -23,7 +23,7 @@ from pydantic_ai import (
 )
 from pydantic_ai import exceptions as pydantic_ai_exceptions
 
-from core.orchestrator.agent import orchestrator_agent
+from core.orchestrator_agent.agent import orchestrator_agent
 from core.common.observability.pydantic_logfire.instrument_logfire import instrument_logfire, get_logfire
 from core.common.observability.pydantic_logfire.utils import final_output_attributes
 from core.common.sse import (
@@ -118,7 +118,7 @@ async def stream(query: str) -> AsyncGenerator[SSEFragment]:
                                 'Final Output',
                                 **final_output_attributes(query, final_output),
                             )
-                            yield ChatDoneEvent()
+                            yield ChatDoneEvent(final_output = final_output)
 
                         case _:
                             raise TypeError(f'Unhandled event type: {type(event).__name__}')

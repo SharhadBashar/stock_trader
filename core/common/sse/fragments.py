@@ -87,9 +87,11 @@ class ToolEndEvent(SSEFragment):
 
 
 class ChatDoneEvent(SSEFragment):
+    def __init__(self, final_output: str ) -> None:
+        self.final_output = final_output
     def to_sse(self) -> ServerSentEvent:
         return ServerSentEvent(
-            data = json.dumps({}),
+            data = json.dumps({'final_output': self.final_output}),
             event = 'done',
         )
 
