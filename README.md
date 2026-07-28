@@ -11,6 +11,10 @@ If you run into port in use issue:
 3. Kill the process using port 8000 `lsof -ti :8000 | xargs kill -9`
 
 
+TODO:
+1. ensure can search positions on robinhoob
+2. add conversation capabilities
+
 Stock Trader
 1. 	update you on your stock prices
 	look up directed info on specific stocks/companies
