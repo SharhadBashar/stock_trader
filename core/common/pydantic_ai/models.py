@@ -13,6 +13,16 @@ gpt_5_6_luna = OpenAIResponsesModel(
         openai_prompt_cache_retention = '24h',
     ),
 )
+gpt_5_6_terra = OpenAIResponsesModel(
+    model_name = 'gpt-5.6-terra',
+    provider = openai_provider,
+    settings = OpenAIResponsesModelSettings(
+        max_tokens = 128000,
+        openai_reasoning_effort = 'medium',
+        openai_reasoning_summary = 'concise',
+        openai_prompt_cache_retention = '24h',
+    ),
+)
 
 sonnet_5 = AnthropicModel(
     model_name = "claude-sonnet-5",

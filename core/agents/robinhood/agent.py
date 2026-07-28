@@ -1,7 +1,15 @@
 from pydantic_ai import Agent
 from pydantic_ai_harness.subagents import SubAgents, SubAgent
 
-from core.traders.robinhood.sub_agents import profile_agent, search_agent, equity_agent
+from core.traders.robinhood.sub_agents import (
+    equity_agent,
+    market_data_agent,
+    options_agent,
+    profile_agent,
+    scanner_agent,
+    search_agent,
+    watchlist_agent,
+)
 from core.common.pydantic_ai.models import gpt_5_6_luna
 from core.agents.robinhood.prompt import PROMPT
 
@@ -9,6 +17,10 @@ sub_agents = [
     SubAgent(profile_agent),
     SubAgent(search_agent),
     SubAgent(equity_agent),
+    SubAgent(watchlist_agent),
+    SubAgent(market_data_agent),
+    SubAgent(options_agent),
+    SubAgent(scanner_agent),
 ]
 
 robinhood_agent = Agent(
