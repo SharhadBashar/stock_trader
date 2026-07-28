@@ -12,7 +12,7 @@ If you run into port in use issue:
 
 
 TODO:
-1. ensure can search positions on robinhoob
+1. add agent maping for the subagents and main agents
 2. add conversation capabilities
 
 Stock Trader

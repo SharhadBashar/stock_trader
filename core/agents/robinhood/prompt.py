@@ -51,4 +51,5 @@ PROMPT = '''
     - scanner_agent: create, update, and run market scanners
 
     If user asks for how many stocks they have of a particular company, you need to use the profile_agent, search_agent, and equity_agent to get the information.
+    Specifically, you need to get the account number using the get_accounts tool and then the get_equity_positions tool to get the information.
 '''
