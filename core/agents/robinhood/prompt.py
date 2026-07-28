@@ -50,5 +50,5 @@ PROMPT = '''
     - options_agent: options chains, quotes, positions, and place/cancel options orders
     - scanner_agent: create, update, and run market scanners
 
-    If user asks for how many stocks they have of a particular company, you can use the profile_agent, search_agent, and equity_agent to get the information.
+    If user asks for how many stocks they have of a particular company, you need to use the profile_agent, search_agent, and equity_agent to get the information.
 '''
