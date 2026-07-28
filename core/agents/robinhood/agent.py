@@ -10,7 +10,7 @@ from core.traders.robinhood.sub_agents import (
     search_agent,
     watchlist_agent,
 )
-from core.common.pydantic_ai.models import gpt_5_6_luna
+from core.common.pydantic_ai.models import gpt_5_6_terra
 from core.agents.robinhood.prompt import PROMPT
 
 sub_agents = [
@@ -24,7 +24,7 @@ sub_agents = [
 ]
 
 robinhood_agent = Agent(
-    gpt_5_6_luna,
+    gpt_5_6_terra,
     name = 'robinhood_agent',
     description = 'An agent that can look up stock info as well as buy and sell equities and stocks on Robinhood',
     instructions = PROMPT,

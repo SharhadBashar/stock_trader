@@ -1,7 +1,7 @@
 from pydantic_ai import Agent
 from pydantic_ai_harness.subagents import SubAgent, SubAgents
 
-from core.common.pydantic_ai.models import gpt_5_6_luna
+from core.common.pydantic_ai.models import gpt_5_6_terra
 from core.agents.liquid.prompt import PROMPT
 from core.traders.liquid.sub_agents import (
     charts_agent,
@@ -20,7 +20,7 @@ sub_agents = [
 ]
 
 liquid_agent = Agent(
-    gpt_5_6_luna,
+    gpt_5_6_terra,
     name = 'liquid_agent',
     description = 'An agent that researches markets, manages portfolio and trades, and shows charts on Liquid Co-Invest',
     instructions = PROMPT,

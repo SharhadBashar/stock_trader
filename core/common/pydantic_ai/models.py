@@ -8,7 +8,7 @@ gpt_5_6_luna = OpenAIResponsesModel(
     provider = openai_provider,
     settings = OpenAIResponsesModelSettings(
         max_tokens = 128000,
-        openai_reasoning_effort = 'low',
+        openai_reasoning_effort = 'none',
         openai_reasoning_summary = 'concise',
         openai_prompt_cache_retention = '24h',
     ),
