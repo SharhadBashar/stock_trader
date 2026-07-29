@@ -18,8 +18,8 @@ gpt_5_6_terra = OpenAIResponsesModel(
     provider = openai_provider,
     settings = OpenAIResponsesModelSettings(
         max_tokens = 128000,
-        openai_reasoning_effort = 'medium',
-        openai_reasoning_summary = 'concise',
+        openai_reasoning_effort = 'max',
+        openai_reasoning_summary = 'detailed',
         openai_prompt_cache_retention = '24h',
     ),
 )
@@ -27,7 +27,8 @@ gpt_5_6_terra = OpenAIResponsesModel(
 sonnet_5 = AnthropicModel(
     model_name = "claude-sonnet-5",
     provider = anthropic_provider,
-        settings = AnthropicModelSettings(
+    settings = AnthropicModelSettings(
+        anthropic_reasoning_effort = 'high',
         max_tokens = 128000,
         anthropic_cache = '1h',
     ),
@@ -35,7 +36,8 @@ sonnet_5 = AnthropicModel(
 fable_5 = AnthropicModel(
     model_name = 'claude-fable-5',
     provider = anthropic_provider,
-        settings = AnthropicModelSettings(
+    settings = AnthropicModelSettings(
+        anthropic_reasoning_effort = 'xhigh',
         max_tokens = 128000,
         anthropic_cache = '1h',
     ),
