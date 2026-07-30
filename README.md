@@ -10,6 +10,25 @@ If you run into port in use issue:
 2. Kill the process: `kill -9 <PID>`
 3. Kill the process using port 8000 `lsof -ti :8000 | xargs kill -9`
 
+### Environment variables
+Copy `.env.example` to `.env` and fill in every value. All variables are required at startup (`validate_environment()` raises on anything missing). This includes the Postgres connection (`DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB`) and `GOOGLE_APPLICATION_CREDENTIALS` for Firebase.
+
+### Auth (Firebase)
+Signup/signin happens on the frontend with the Firebase Web SDK. The frontend sends the Firebase ID token on every request as `Authorization: Bearer <token>`. This backend verifies the token with `firebase-admin` and provisions/updates a row in the local `users` table on the fly (`core/auth/`). Firebase stores all credentials — the backend never sees passwords.
+
+One-time setup:
+1. Create a Firebase project at https://console.firebase.google.com and enable your sign-in providers (Authentication -> Sign-in method), e.g. Email/Password, Google, Phone.
+2. Generate a service account key: Project settings -> Service accounts -> Generate new private key.
+3. Save the JSON somewhere outside the repo (or gitignored) and point `GOOGLE_APPLICATION_CREDENTIALS` in `.env` at it.
+
+Protected routes take `Depends(get_current_user)` from `core.auth`. Missing/invalid tokens get a 401, archived users (`users.archived_at` set) get a 403.
+
+### Database migrations
+Alembic is wired to the models in `db/models/` and reads the DB URL from `.env` (same `DB_*` variables as the app).
+- Apply migrations: `uv run alembic upgrade head`
+- Roll back one: `uv run alembic downgrade -1`
+- New migration after model changes: `uv run alembic revision --autogenerate -m 'describe change'`
+
 
 TODO:
 1. add agent maping for the subagents and main agents
