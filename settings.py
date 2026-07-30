@@ -10,6 +10,12 @@ GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 LOGFIRE_TOKEN = os.getenv('LOGFIRE_TOKEN')
 PERPLEXITY_API_KEY = os.getenv('PERPLEXITY_API_KEY')
 
+DB = os.getenv('DB')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_PORT = os.getenv('DB_PORT', '5432')
+
 def validate_environment():
     if not OPENAI_API_KEY:
         raise ValueError('OPENAI_API_KEY is not set')
