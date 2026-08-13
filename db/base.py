@@ -16,21 +16,7 @@ from settings import DB, DB_HOST, DB_PASSWORD, DB_PORT, DB_USER
 
 load_dotenv()
 
-DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB}"
-
-# Database Configuration Parameters:
-#
-# pool_pre_ping=True:
-# - Tests connections before using them, detecting stale or disconnected connections
-# - Prevents 'connection has been closed' errors after idle periods
-#
-# autoflush=False:
-# - Prevents automatic flushing of changes to the database before every query
-# - Gives explicit control over when changes are persisted
-#
-# autocommit=False:
-# - Forces us to use explicit transactions (this means changes are only commited when you call db.commit())
-# - Also allows for rolling back changes if errors occur during processing
+DATABASE_URL = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB}?sslmode=require&channel_binding=require'
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
