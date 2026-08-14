@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.v0.routes.users.request_model import CreateUserRequest, UserResponse
+from app.v0.routes.users.request_model import CreateUserRequest
+from app.v0.routes.users.response_models import UserResponse
 from db.base import get_db
 from db.operations.users import users_ops
 
