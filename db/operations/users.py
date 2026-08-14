@@ -1,3 +1,6 @@
+from datetime import datetime
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 
 from db.base_operations import BaseDBOperations
@@ -13,6 +16,12 @@ class UsersDBOperations(BaseDBOperations[Users]):
 
     def get_by_email(self, db: Session, email: str) -> Users | None:
         return db.query(self.model).filter(self.model.email == email).first()
+
+    def update_profile(self, db: Session, user_id: UUID, data: dict) -> Users | None:
+        return self.update(db, user_id, {
+            **data,
+            'updated_at': datetime.now(),
+        })
 
 
 users_ops = UsersDBOperations()

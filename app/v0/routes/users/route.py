@@ -1,10 +1,12 @@
 import logging
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.v0.routes.users.request_model import CreateUserRequest
+from app.v0.routes.users.request_model import CreateUserRequest, UpdateUserRequest
 from app.v0.routes.users.response_models import UserResponse
 from db.base import get_db
 from db.operations.users import users_ops
@@ -63,3 +65,52 @@ async def get_or_create_user(
 
     response.status_code = status.HTTP_201_CREATED
     return user
+
+
+@users_router.get('/{user_id}', tags = ['Users'], response_model = UserResponse)
+async def get_user(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+):
+    user = users_ops.get(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = 'User not found',
+        )
+    return user
+
+
+@users_router.put('/{user_id}', tags = ['Users'], response_model = UserResponse)
+async def update_user(
+    user_id: UUID,
+    request: UpdateUserRequest,
+    db: Session = Depends(get_db),
+):
+    payload = request.model_dump(exclude_unset = True)
+    if not payload:
+        raise HTTPException(
+            status_code = status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail = 'At least one of name or phone is required',
+        )
+
+    updates: dict = {}
+    if 'name' in payload:
+        name = (payload['name'] or '').strip()
+        if not name:
+            raise HTTPException(
+                status_code = status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail = 'name cannot be empty',
+            )
+        updates['name'] = name
+    if 'phone' in payload:
+        updates['phone'] = (payload['phone'] or '').strip() or None
+
+    user = users_ops.get(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = 'User not found',
+        )
+
+    return users_ops.update_profile(db, user_id, updates)

@@ -6,3 +6,8 @@ class CreateUserRequest(BaseModel):
     name: str
     email: str
     phone: str | None = None
+
+
+class UpdateUserRequest(BaseModel):
+    name: str | None = None
+    phone: str | None = None
