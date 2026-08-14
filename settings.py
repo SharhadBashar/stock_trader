@@ -6,7 +6,6 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 LOGFIRE_TOKEN = os.getenv('LOGFIRE_TOKEN')
 PERPLEXITY_API_KEY = os.getenv('PERPLEXITY_API_KEY')
 
@@ -23,8 +22,6 @@ def validate_environment():
         raise ValueError('ANTHROPIC_API_KEY is not set')
     if not GEMINI_API_KEY:
         raise ValueError('GEMINI_API_KEY is not set')
-    if not GROQ_API_KEY:
-        raise ValueError('GROQ_API_KEY is not set')
     if not LOGFIRE_TOKEN:
         raise ValueError('LOGFIRE_TOKEN is not set')
     if not PERPLEXITY_API_KEY:

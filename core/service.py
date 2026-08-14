@@ -23,16 +23,19 @@ from pydantic_ai import (
 )
 from pydantic_ai import exceptions as pydantic_ai_exceptions
 
-from core.agents import orchestrator_agent, conversation_agent
+from core.agents import conversation_agent
+from core.agents.orchestrator.agent import orchestrator_agent
 from core.agents.conversation.types import ConversationTitle
 from core.common.observability.pydantic_logfire.instrument_logfire import instrument_logfire, get_logfire
 from core.common.observability.pydantic_logfire.utils import final_output_attributes
 from core.common.sse import (
     ChatDoneEvent,
+    ConversationCreatedEvent,
     ErrorEvent,
     TextChunkEvent,
     TextPartEndEvent,
     ThinkingEvent,
+    TitleEvent,
     ToolEndEvent,
     ToolStartEvent,
 )
@@ -45,7 +48,70 @@ logger = logging.getLogger(__name__)
 async def generate_conversation_title(query: str) -> ConversationTitle:
     logfire = get_logfire()
     with logfire.span('{query}', query = query):
-        return await conversation_agent.run(query)
+        result = await conversation_agent.run(query)
+        return result.output
+
+
+async def stream_conversation(
+    query: str,
+    conversation_id: uuid.UUID,
+    user_id: uuid.UUID,
+    title: str,
+) -> AsyncGenerator[SSEFragment]:
+    yield ConversationCreatedEvent(
+        conversation_id = conversation_id,
+        user_id = user_id,
+        title = title,
+    )
+
+    queue: asyncio.Queue[SSEFragment | None] = asyncio.Queue()
+
+    async def produce_title() -> None:
+        try:
+            generated = await generate_conversation_title(query)
+            generated_title = generated.title.strip()
+            if generated_title:
+                await queue.put(TitleEvent(
+                    title = generated_title,
+                    conversation_id = conversation_id,
+                ))
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception('Failed to generate conversation title')
+        finally:
+            await queue.put(None)
+
+    async def produce_stream() -> None:
+        try:
+            async for fragment in stream(query):
+                await queue.put(fragment)
+        except asyncio.CancelledError:
+            raise
+        finally:
+            await queue.put(None)
+
+    title_task = asyncio.create_task(produce_title())
+    stream_task = asyncio.create_task(produce_stream())
+    producers_left = 2
+
+    try:
+        while producers_left:
+            item = await queue.get()
+            if item is None:
+                producers_left -= 1
+                continue
+            yield item
+    except asyncio.CancelledError:
+        title_task.cancel()
+        stream_task.cancel()
+        raise
+    finally:
+        for task in (title_task, stream_task):
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(title_task, stream_task, return_exceptions = True)
+
 
 @instrument_logfire(project = 'trader')
 async def stream(query: str) -> AsyncGenerator[SSEFragment]:

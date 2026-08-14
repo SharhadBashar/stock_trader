@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class CreateConversationRequest(BaseModel):
     user_id: UUID
-    title: str | None = None
+    query: str
 
 
 class UpdateConversationRequest(BaseModel):

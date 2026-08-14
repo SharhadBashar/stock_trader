@@ -1,18 +1,79 @@
+import logging
+
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sse_starlette.sse import EventSourceResponse
 
 from app.v0.routes.conversations.request_model import (
     CreateConversationRequest,
     UpdateConversationRequest,
 )
 from app.v0.routes.conversations.response_models import ConversationResponse
-from db.base import get_db
+from core.common.sse import TitleEvent
+from core.service import stream_conversation
+from db.base import get_db, get_db_session
 from db.operations.conversations import conversations_ops
 from db.operations.users import users_ops
 
+logger = logging.getLogger(__name__)
+
 conversations_router = APIRouter()
+
+
+def _placeholder_title(query: str) -> str:
+    collapsed = ' '.join(query.split())
+    if len(collapsed) <= 80:
+        return collapsed
+    return f'{collapsed[:80].rstrip()}...'
+
+
+@conversations_router.post('', tags = ['Conversations'])
+async def conversation(
+    request: CreateConversationRequest,
+    db: Session = Depends(get_db),
+):
+    query = request.query.strip()
+    if not query:
+        raise HTTPException(
+            status_code = status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail = 'query is required',
+        )
+
+    user = users_ops.get(db, request.user_id)
+    if not user:
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = 'User not found',
+        )
+
+    created = conversations_ops.create(db, {
+        'user_id': request.user_id,
+        'title': _placeholder_title(query),
+    })
+
+    async def generate_sse_events():
+        try:
+            async for fragment in stream_conversation(
+                query = query,
+                conversation_id = created.id,
+                user_id = created.user_id,
+                title = created.title,
+            ):
+                if isinstance(fragment, TitleEvent):
+                    with get_db_session() as title_db:
+                        conversations_ops.update_title(
+                            title_db,
+                            created.id,
+                            fragment.title,
+                        )
+                yield fragment.to_sse().encode()
+        except Exception:
+            logger.exception('Error in conversation SSE stream')
+            raise
+
+    return EventSourceResponse(generate_sse_events())
 
 
 @conversations_router.get('', tags = ['Conversations'], response_model = list[ConversationResponse])

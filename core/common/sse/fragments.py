@@ -1,12 +1,45 @@
 import json
 
 from typing import Any, Protocol
+from uuid import UUID
 
 from sse_starlette.sse import ServerSentEvent
 
 
 class SSEFragment(Protocol):
     def to_sse(self) -> ServerSentEvent: ...
+
+
+class ConversationCreatedEvent(SSEFragment):
+    def __init__(self, conversation_id: UUID, user_id: UUID, title: str) -> None:
+        self.conversation_id = conversation_id
+        self.user_id = user_id
+        self.title = title
+
+    def to_sse(self) -> ServerSentEvent:
+        return ServerSentEvent(
+            data = json.dumps({
+                'id': str(self.conversation_id),
+                'user_id': str(self.user_id),
+                'title': self.title,
+            }),
+            event = 'conversation',
+        )
+
+
+class TitleEvent(SSEFragment):
+    def __init__(self, title: str, conversation_id: UUID) -> None:
+        self.title = title
+        self.conversation_id = conversation_id
+
+    def to_sse(self) -> ServerSentEvent:
+        return ServerSentEvent(
+            data = json.dumps({
+                'title': self.title,
+                'conversation_id': str(self.conversation_id),
+            }),
+            event = 'title',
+        )
 
 
 class ThinkingEvent(SSEFragment):
