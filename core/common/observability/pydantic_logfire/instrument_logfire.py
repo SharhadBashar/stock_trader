@@ -10,7 +10,7 @@ from settings import LOGFIRE_TOKEN
 from core.common.observability.pydantic_logfire.types import InstrumentType
 
 
-_logfire_context: ContextVar[logfire.Logfire] = ContextVar("logfire_context")
+_logfire_context: ContextVar[logfire.Logfire] = ContextVar('logfire_context')
 
 
 def get_logfire() -> logfire.Logfire:
@@ -18,7 +18,7 @@ def get_logfire() -> logfire.Logfire:
         return _logfire_context.get()
     except LookupError as err:
         raise RuntimeError(
-            "No logfire instance in context. Did you forget @instrument_logfire?"
+            'No logfire instance in context. Did you forget @instrument_logfire?'
         ) from err
 
 
@@ -30,7 +30,7 @@ def instrument_logfire(
         def _configure_logfire(name: str):
             prefix = project if project else name.lower()
             service_name = (
-                f"{prefix}-{str(uuid.uuid4())[:5]}" if prefix else str(uuid.uuid4())[:5]
+                f'{prefix}-{str(uuid.uuid4())[:5]}' if prefix else str(uuid.uuid4())[:5]
             )
             logfire_instance = logfire.configure(
                 token=LOGFIRE_TOKEN,
@@ -92,7 +92,7 @@ def instrument_logfire(
 
         else:
             raise ValueError(
-                f"Object {obj.__name__} is not a class, function, or coroutine function"
+                f'Object {obj.__name__} is not a class, function, or coroutine function'
             )
 
     return decorator

@@ -4,7 +4,7 @@ PROMPT = '''
     - List the user's watchlists
     - List symbols in a specific watchlist
     - Load an options watchlist
-    - Discover Robinhood lists (like "100 most popular")
+    - Discover Robinhood lists (like '100 most popular')
     - Create a new custom watchlist
     - Rename or update a watchlist's name/description
     - Follow or unfollow a Robinhood list

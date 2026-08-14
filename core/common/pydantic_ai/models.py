@@ -25,7 +25,7 @@ gpt_5_6_terra = OpenAIResponsesModel(
 )
 
 sonnet_5 = AnthropicModel(
-    model_name = "claude-sonnet-5",
+    model_name = 'claude-sonnet-5',
     provider = anthropic_provider,
     settings = AnthropicModelSettings(
         anthropic_reasoning_effort = 'high',

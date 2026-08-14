@@ -1,6 +1,6 @@
-"""
+'''
 Base database configuration and setup.
-"""
+'''
 
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -44,23 +44,23 @@ def get_db_session() -> Generator[Session, Any, Any]:
 def execute_query(
     sql: TextClause,
     params: dict | None = None,
-    fetch_method: str = "fetchall",
+    fetch_method: str = 'fetchall',
 ) -> list[dict] | list | Any:
-    """Execute a SQL query and return results based on fetch_method.
+    '''Execute a SQL query and return results based on fetch_method.
 
     Args:
         sql: SQL query to execute
         params: Query parameters for bind variables
-        fetch_method: How to fetch results - "mappings" or "fetchall"
+        fetch_method: How to fetch results - 'mappings' or 'fetchall'
 
     Returns:
-        List of dicts if fetch_method="mappings", list of tuples if "fetchall",
+        List of dicts if fetch_method='mappings', list of tuples if 'fetchall',
         or raw Result object otherwise
-    """
+    '''
     with get_db_session() as db:
         result = db.execute(sql, params)
-        if fetch_method == "mappings":
+        if fetch_method == 'mappings':
             return [dict(row) for row in result.mappings().all()]
-        elif fetch_method == "fetchall":
+        elif fetch_method == 'fetchall':
             return result.fetchall()
         return result

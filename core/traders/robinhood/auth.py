@@ -27,13 +27,13 @@ def robinhood_client():
 
 
 async def is_robinhood_authenticated() -> bool:
-    """Return True if cached Robinhood OAuth tokens exist."""
+    '''Return True if cached Robinhood OAuth tokens exist.'''
     tokens = await robinhood_oauth().token_storage_adapter.get_tokens()
     return tokens is not None and bool(tokens.access_token or tokens.refresh_token)
 
 
 async def authenticate_robinhood() -> None:
-    """Connect the Robinhood MCP client to trigger OAuth and cache tokens."""
+    '''Connect the Robinhood MCP client to trigger OAuth and cache tokens.'''
     async with robinhood_client():
         pass
 

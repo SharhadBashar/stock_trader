@@ -27,13 +27,13 @@ def liquid_client():
 
 
 async def is_liquid_authenticated() -> bool:
-    """Return True if cached Liquid OAuth tokens exist."""
+    '''Return True if cached Liquid OAuth tokens exist.'''
     tokens = await liquid_oauth().token_storage_adapter.get_tokens()
     return tokens is not None and bool(tokens.access_token or tokens.refresh_token)
 
 
 async def authenticate_liquid() -> None:
-    """Connect the Liquid MCP client to trigger OAuth and cache tokens."""
+    '''Connect the Liquid MCP client to trigger OAuth and cache tokens.'''
     async with liquid_client():
         pass
 
