@@ -23,7 +23,8 @@ from pydantic_ai import (
 )
 from pydantic_ai import exceptions as pydantic_ai_exceptions
 
-from core.agents.orchestrator.agent import orchestrator_agent
+from core.agents import orchestrator_agent, conversation_agent
+from core.agents.conversation.types import ConversationTitle
 from core.common.observability.pydantic_logfire.instrument_logfire import instrument_logfire, get_logfire
 from core.common.observability.pydantic_logfire.utils import final_output_attributes
 from core.common.sse import (
@@ -39,6 +40,12 @@ from core.common.sse.fragments import SSEFragment
 
 logger = logging.getLogger(__name__)
 
+
+@instrument_logfire(project = 'conversation_title')
+async def generate_conversation_title(query: str) -> ConversationTitle:
+    logfire = get_logfire()
+    with logfire.span('{query}', query = query):
+        return await conversation_agent.run(query)
 
 @instrument_logfire(project = 'trader')
 async def stream(query: str) -> AsyncGenerator[SSEFragment]:
