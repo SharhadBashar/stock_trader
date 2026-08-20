@@ -1,0 +1,74 @@
+from datetime import datetime
+import uuid
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    UUID,
+    text,
+)
+from sqlalchemy.dialects.postgresql import JSONB
+
+from db.base import Base
+
+
+class Message(Base):
+    '''
+        Table to store conversation messages
+        Table Name: messages
+        Columns:
+            id: [UUID] - PK
+            conversation_id: [UUID] - FK to conversations.id
+            user_message_id: [UUID] - FK to messages.id, NULL on the user prompt
+            sequence: [Integer] - order within the conversation
+            kind: [String] - request or response
+            role: [String] - user, assistant, tool, or system
+            payload: [JSONB] - one pydantic-ai ModelMessage
+            display_content: [Text] - user prompt or joined text parts
+            include_in_history: [Boolean] - whether this row is passed as message_history
+            status: [String] - pending, complete, error, or cancelled
+            run_id: [String] - pydantic-ai run_id
+            created_at: [DateTime]
+            updated_at: [DateTime]
+    '''
+
+    __tablename__ = 'messages'
+    __table_args__ = (
+        UniqueConstraint('conversation_id', 'sequence', name = 'uq_messages_conversation_sequence'),
+        Index('ix_messages_user_message_id', 'user_message_id'),
+        Index(
+            'ix_messages_history',
+            'conversation_id',
+            'sequence',
+            postgresql_where = text('include_in_history IS TRUE'),
+        ),
+    )
+
+    id = Column(UUID, primary_key = True, default = uuid.uuid4)
+    conversation_id = Column(
+        UUID,
+        ForeignKey('conversations.id', ondelete = 'CASCADE'),
+        nullable = False,
+    )
+    user_message_id = Column(
+        UUID,
+        ForeignKey('messages.id', ondelete = 'CASCADE'),
+        nullable = True,
+    )
+    sequence = Column(Integer, nullable = False)
+    kind = Column(String, nullable = False)
+    role = Column(String, nullable = False)
+    payload = Column(JSONB, nullable = False)
+    display_content = Column(Text, nullable = True)
+    include_in_history = Column(Boolean, nullable = False, default = True)
+    status = Column(String, nullable = False)
+    run_id = Column(String, nullable = True)
+    created_at = Column(DateTime, nullable = False, default = datetime.now)
+    updated_at = Column(DateTime, nullable = False, default = datetime.now)
