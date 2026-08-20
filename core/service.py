@@ -40,35 +40,8 @@ from core.common.sse import (
     ToolStartEvent,
 )
 from core.common.sse.fragments import SSEFragment
-from pydantic_ai.messages import ModelMessage
-from db.base import get_db_session
-from db.operations.messages import messages_ops
 
 logger = logging.getLogger(__name__)
-
-
-def _complete_turn(
-    conversation_id: uuid.UUID | None,
-    user_message_id: uuid.UUID | None,
-    new_messages: list[ModelMessage],
-) -> None:
-    if conversation_id is None or user_message_id is None:
-        return
-    try:
-        with get_db_session() as db:
-            messages_ops.complete_turn(db, conversation_id, user_message_id, new_messages)
-    except Exception:
-        logger.exception('Failed to persist conversation messages')
-
-
-def _fail_turn(user_message_id: uuid.UUID | None, status: str) -> None:
-    if user_message_id is None:
-        return
-    try:
-        with get_db_session() as db:
-            messages_ops.fail_turn(db, user_message_id, status)
-    except Exception:
-        logger.exception('Failed to mark conversation turn as %s', status)
 
 
 @instrument_logfire(project = 'conversation_title')
@@ -84,7 +57,6 @@ async def stream_conversation(
     conversation_id: uuid.UUID,
     user_id: uuid.UUID,
     title: str,
-    user_message_id: uuid.UUID,
 ) -> AsyncGenerator[SSEFragment]:
     yield ConversationCreatedEvent(
         conversation_id = conversation_id,
@@ -112,11 +84,7 @@ async def stream_conversation(
 
     async def produce_stream() -> None:
         try:
-            async for fragment in stream(
-                query,
-                conversation_id = conversation_id,
-                user_message_id = user_message_id,
-            ):
+            async for fragment in stream(query):
                 await queue.put(fragment)
         except asyncio.CancelledError:
             raise
@@ -146,15 +114,10 @@ async def stream_conversation(
 
 
 @instrument_logfire(project = 'trader')
-async def stream(
-    query: str,
-    conversation_id: uuid.UUID | None = None,
-    user_message_id: uuid.UUID | None = None,
-) -> AsyncGenerator[SSEFragment]:
+async def stream(query: str) -> AsyncGenerator[SSEFragment]:
     logfire = get_logfire()
     current_text_part_id: str | None = None
     collected_output = ''
-    turn_persisted = False
 
     with logfire.span('{query}', query = query):
         try:
@@ -228,32 +191,17 @@ async def stream(
                                 'Final Output',
                                 **final_output_attributes(query, final_output),
                             )
-                            _complete_turn(
-                                conversation_id,
-                                user_message_id,
-                                event.result.new_messages(),
-                            )
-                            turn_persisted = True
                             yield ChatDoneEvent(final_output = final_output)
 
                         case _:
                             raise TypeError(f'Unhandled event type: {type(event).__name__}')
 
-            if not turn_persisted:
-                _fail_turn(user_message_id, 'error')
-
         except asyncio.CancelledError:
             logger.info('Client disconnected mid-stream')
-            if not turn_persisted:
-                _fail_turn(user_message_id, 'cancelled')
             raise
         except pydantic_ai_exceptions.UsageLimitExceeded as e:
             logger.exception('LLM usage limit exceeded')
-            if not turn_persisted:
-                _fail_turn(user_message_id, 'error')
             yield ErrorEvent(error_type = 'usage_limit_exceeded', message = str(e))
         except Exception as e:
             logger.exception('Error in stream')
-            if not turn_persisted:
-                _fail_turn(user_message_id, 'error')
             yield ErrorEvent(message = str(e))
