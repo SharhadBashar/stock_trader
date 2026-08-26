@@ -21,8 +21,11 @@ from db.base import Base
 
 class Message(Base):
     '''
-        Table to store conversation messages
+        Table to store conversation actions
         Table Name: messages
+        Each row is one action in a turn (user prompt, thinking, tool call,
+        tool response, or assistant output). Which agents ran and what steps
+        they took is the set of rows, not a list on a single row.
         Columns:
             id: [UUID] - PK
             conversation_id: [UUID] - FK to conversations.id
@@ -35,16 +38,15 @@ class Message(Base):
             include_in_history: [Boolean] - whether this row is passed as message_history
             status: [String] - pending, complete, error, or cancelled
             run_id: [String] - pydantic-ai run_id
-            user_query: [Text] - the original user question for this turn
-            agents_called: [JSONB] - agents invoked during the turn
-            agent_steps: [JSONB] - ordered steps each agent took
-            tools_called: [JSONB] - tool calls (name, args, agent, model)
-            tool_responses: [JSONB] - tool results (content, status, agent)
-            thinking: [Text] - model thinking for this row or the full turn
-            agent_name: [String] - which agent produced this row, if any
-            model_name: [String] - model used for this row or the final output
-            latency_ms: [Integer] - total turn latency on the final message
-            is_final: [Boolean] - whether this row is the final assistant output
+            user_query: [Text] - what the user asked in this turn
+            agent_name: [String] - which agent performed this action, if any
+            model_name: [String] - model used for this action
+            thinking: [Text] - thinking for this action, if any
+            tool_name: [String] - tool for this action, if this is a tool call or result
+            tool_args: [JSONB] - tool arguments, if this action is a tool call
+            tool_response: [JSONB] - tool result, if this action is a tool response
+            latency_ms: [Integer] - total turn latency on the final output row
+            is_final: [Boolean] - whether this action is the final output
             created_at: [DateTime]
             updated_at: [DateTime]
     '''
@@ -82,13 +84,12 @@ class Message(Base):
     status = Column(String, nullable = False)
     run_id = Column(String, nullable = True)
     user_query = Column(Text, nullable = True)
-    agents_called = Column(JSONB, nullable = True)
-    agent_steps = Column(JSONB, nullable = True)
-    tools_called = Column(JSONB, nullable = True)
-    tool_responses = Column(JSONB, nullable = True)
-    thinking = Column(Text, nullable = True)
     agent_name = Column(String, nullable = True)
     model_name = Column(String, nullable = True)
+    thinking = Column(Text, nullable = True)
+    tool_name = Column(String, nullable = True)
+    tool_args = Column(JSONB, nullable = True)
+    tool_response = Column(JSONB, nullable = True)
     latency_ms = Column(Integer, nullable = True)
     is_final = Column(Boolean, nullable = False, default = False)
     created_at = Column(DateTime, nullable = False, default = datetime.now)
