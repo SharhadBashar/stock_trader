@@ -1,5 +1,5 @@
 from pydantic_ai import Agent
-from pydantic_ai_harness.subagents import SubAgent
+from pydantic_ai_harness.subagents import SubAgents, SubAgent
 
 from core.traders.robinhood.sub_agents import (
     equity_agent,
@@ -10,7 +10,6 @@ from core.traders.robinhood.sub_agents import (
     search_agent,
     watchlist_agent,
 )
-from core.common.agent_trace import traced_sub_agents
 from core.common.pydantic_ai.models import gpt_5_6_terra
 from core.agents.robinhood.prompt import PROMPT
 
@@ -30,7 +29,9 @@ robinhood_agent = Agent(
     description = 'An agent that can look up stock info as well as buy and sell equities and stocks on Robinhood',
     instructions = PROMPT,
     capabilities = [
-        traced_sub_agents(sub_agents)
+        SubAgents(
+            sub_agents
+        )
     ],
     output_type = str,
 )

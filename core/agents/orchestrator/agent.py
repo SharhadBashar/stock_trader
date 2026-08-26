@@ -1,7 +1,6 @@
 from pydantic_ai import Agent
-from pydantic_ai_harness.subagents import SubAgent
+from pydantic_ai_harness.subagents import SubAgent, SubAgents
 
-from core.common.agent_trace import traced_sub_agents
 from core.common.pydantic_ai.models import gpt_5_6_terra
 
 from core.agents import liquid_agent, research_agent, robinhood_agent
@@ -18,7 +17,9 @@ orchestrator_agent = Agent(
     name = 'orchestrator_agent',
     instructions = PROMPT,
     capabilities = [
-        traced_sub_agents(sub_agents)
+        SubAgents(
+            sub_agents
+        )
     ],
     output_type = str,
 )
