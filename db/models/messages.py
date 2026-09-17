@@ -2,14 +2,13 @@ from datetime import datetime
 import uuid
 
 from sqlalchemy import (
-    Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
     Index,
     Integer,
     String,
-    Text,
     UUID,
     text,
 )
@@ -20,54 +19,72 @@ from db.base import Base
 
 class Message(Base):
     '''
-        Table to store conversation actions, shaped like Cursor composer bubbles.
-
+        Table to store multi-agent conversation messages
         Table Name: messages
-        Each row is one action (user prompt, thinking, tool call, or assistant text)
+        Each row is one event (user query, thinking, tool call, tool result, or agent output)
 
         Columns:
             id: [UUID] - PK
             conversation_id: [UUID] - FK to conversations.id
-            user_message_id: [UUID] - FK to messages.id, NULL on the user prompt
-            parent_id: [UUID] - FK to messages.id, action that spawned this row
-            parent_agent: [String] - agent that spawned this run
-            request_id: [String] - shared id for actions in one model request
-            sequence: [Integer] - append order within the conversation
-            run_id: [String] - this agent's run id
-            kind: [String] - user, thinking, tool, assistant, or error
+            user_message_id: [UUID] - FK to messages.id, NULL on the root user query
+            parent_message_id: [UUID] - FK to messages.id, optional immediate parent step
             role: [String] - user, assistant, tool, or system
-            status: [String] - pending, running, completed, error, or cancelled
-            user_query: [Text] - what the user asked in this turn
-            display_content: [Text] - user prompt, thinking, assistant text, or tool label
-            payload: [JSONB] - one pydantic-ai ModelMessage
-            include_in_history: [Boolean] - whether this row is passed as message_history
-            is_final: [Boolean] - whether this action is the final output
-            agent_name: [String] - which agent performed this action
-            thinking: [Text] - thinking for this action
-            tool_call_id: [String] - id linking a tool call to its result
+            msg_type: [String] - text, thinking, tool_call, tool_result, agent_output, ...
+            sequence: [Integer] - append order within the user query
+            sibling_index: [Integer] - concurrent sibling order, default 0
+            call_id: [String] - pairs a tool call with its result
+            agent_name: [String] - which agent produced this row
+            parent_agent_name: [String] - agent that spawned this run
+            model: [String] - model used for this row
             tool_name: [String] - tool for this action
-            tool_args: [JSONB] - tool arguments
-            tool_response: [JSONB] - tool result
-            tool_status: [String] - running, completed, or error
-            error_message: [Text] - error body when status or tool_status is error
+            delegate_agent_name: [String] - agent this row delegates to
+            content: [JSONB] - message body
+            status: [String] - pending, running, completed, error, or cancelled
+            visibility: [String] - none, agent, human, or all
+            log: [JSONB] - span_id, cost_usd, latency_seconds, ...
+            provider_message_id: [String] - upstream provider message id
             created_at: [DateTime]
             updated_at: [DateTime]
+            archived_at: [DateTime]
     '''
 
     __tablename__ = 'messages'
     __table_args__ = (
-        Index('ix_messages_user_message_id', 'user_message_id'),
-        Index('ix_messages_parent_id', 'parent_id'),
-        Index('ix_messages_parent_agent', 'conversation_id', 'parent_agent'),
-        Index('ix_messages_request_id', 'request_id'),
-        Index('ix_messages_agent_run', 'conversation_id', 'agent_name', 'run_id'),
-        Index(
-            'ix_messages_history',
-            'conversation_id',
-            'sequence',
-            postgresql_where = text('include_in_history IS TRUE'),
+        CheckConstraint(
+            "(user_message_id IS NULL AND role = 'user') OR (user_message_id IS NOT NULL)",
+            name = 'ck_messages_root_user',
         ),
-        Index('ix_messages_is_final', 'conversation_id', 'is_final'),
+        CheckConstraint(
+            "visibility IN ('none', 'agent', 'human', 'all')",
+            name = 'ck_messages_visibility',
+        ),
+        Index(
+            'uq_messages_user_seq_sib',
+            'user_message_id',
+            'sequence',
+            'sibling_index',
+            unique = True,
+            postgresql_where = text('user_message_id IS NOT NULL'),
+        ),
+        Index('ix_messages_conversation_id', 'conversation_id'),
+        Index('ix_messages_user_message_id', 'user_message_id'),
+        Index('ix_messages_parent_message_id', 'parent_message_id'),
+        Index('ix_messages_call_id', 'call_id'),
+        Index('ix_messages_agent_name', 'agent_name'),
+        Index('ix_messages_visibility', 'visibility'),
+        Index('ix_messages_conv_created', 'conversation_id', 'created_at'),
+        Index(
+            'ix_messages_user_order',
+            'user_message_id',
+            'sequence',
+            'sibling_index',
+            'created_at',
+        ),
+        Index(
+            'ix_messages_archived_at',
+            'archived_at',
+            postgresql_where = text('archived_at IS NOT NULL'),
+        ),
     )
 
     id = Column(UUID, primary_key = True, default = uuid.uuid4)
@@ -81,30 +98,26 @@ class Message(Base):
         ForeignKey('messages.id', ondelete = 'CASCADE'),
         nullable = True,
     )
-    parent_id = Column(
+    parent_message_id = Column(
         UUID,
-        ForeignKey('messages.id', ondelete = 'CASCADE'),
+        ForeignKey('messages.id', ondelete = 'SET NULL'),
         nullable = True,
     )
-    parent_agent = Column(String, nullable = True)
-    request_id = Column(String, nullable = True)
-    sequence = Column(Integer, nullable = False)
-    run_id = Column(String, nullable = True)
-    kind = Column(String, nullable = False)
     role = Column(String, nullable = False)
-    status = Column(String, nullable = False)
-    user_query = Column(Text, nullable = True)
-    display_content = Column(Text, nullable = True)
-    payload = Column(JSONB, nullable = False)
-    include_in_history = Column(Boolean, nullable = False, default = True)
-    is_final = Column(Boolean, nullable = False, default = False)
+    msg_type = Column(String, nullable = False)
+    sequence = Column(Integer, nullable = False)
+    sibling_index = Column(Integer, nullable = False, default = 0)
+    call_id = Column(String, nullable = True)
     agent_name = Column(String, nullable = True)
-    thinking = Column(Text, nullable = True)
-    tool_call_id = Column(String, nullable = True)
+    parent_agent_name = Column(String, nullable = True)
+    model = Column(String, nullable = True)
     tool_name = Column(String, nullable = True)
-    tool_args = Column(JSONB, nullable = True)
-    tool_response = Column(JSONB, nullable = True)
-    tool_status = Column(String, nullable = True)
-    error_message = Column(Text, nullable = True)
+    delegate_agent_name = Column(String, nullable = True)
+    content = Column(JSONB, nullable = True)
+    status = Column(String, nullable = True)
+    visibility = Column(String, nullable = False, default = 'all')
+    log = Column(JSONB, nullable = True)
+    provider_message_id = Column(String, nullable = True)
     created_at = Column(DateTime, nullable = False, default = datetime.now)
     updated_at = Column(DateTime, nullable = False, default = datetime.now)
+    archived_at = Column(DateTime, nullable = True)
