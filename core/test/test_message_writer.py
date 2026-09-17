@@ -1,7 +1,14 @@
+import os
 import unittest
 import uuid
 from contextlib import nullcontext
 from types import SimpleNamespace
+
+os.environ.setdefault('DB_USER', 'test')
+os.environ.setdefault('DB_PASSWORD', 'test')
+os.environ.setdefault('DB_HOST', 'localhost')
+os.environ.setdefault('DB_PORT', '5432')
+os.environ.setdefault('DB', 'test')
 
 from core.common.message_writer import StreamMessageWriter
 from db.operations.messages import jsonable, parse_tool_args
