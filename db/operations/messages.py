@@ -76,7 +76,6 @@ class MessagesDBOperations(BaseDBOperations[Message]):
         tool_name: str | None = None,
         delegate_agent_name: str | None = None,
         agent_name: str | None = None,
-        model: str | None = None,
     ) -> Message:
         row = self.create(db, {
             'conversation_id': conversation_id,
@@ -87,7 +86,6 @@ class MessagesDBOperations(BaseDBOperations[Message]):
             'sibling_index': 0,
             'call_id': call_id,
             'agent_name': agent_name,
-            'model': model,
             'tool_name': tool_name,
             'delegate_agent_name': delegate_agent_name,
             'content': jsonable(content),

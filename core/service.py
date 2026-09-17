@@ -310,11 +310,6 @@ async def stream(
                                 'Final Output',
                                 **final_output_attributes(query, final_output),
                             )
-                            model_name = getattr(
-                                getattr(event.result, 'response', None),
-                                'model_name',
-                                None,
-                            )
                             _create_message(
                                 conversation_id,
                                 'text',
@@ -322,7 +317,6 @@ async def stream(
                                 user_message_id = user_message_id,
                                 status = 'completed',
                                 agent_name = orchestrator_agent.name,
-                                model = model_name,
                             )
                             if user_message_id is not None:
                                 with get_db_session() as db:

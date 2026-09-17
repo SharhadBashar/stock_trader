@@ -35,7 +35,6 @@ class Message(Base):
             call_id: [String] - pairs a tool call with its result
             agent_name: [String] - which agent produced this row
             parent_agent_name: [String] - agent that spawned this run
-            model: [String] - model used for this row
             tool_name: [String] - tool for this action
             delegate_agent_name: [String] - agent this row delegates to
             content: [JSONB] - message body
@@ -109,7 +108,6 @@ class Message(Base):
     call_id = Column(String, nullable = True)
     agent_name = Column(String, nullable = True)
     parent_agent_name = Column(String, nullable = True)
-    model = Column(String, nullable = True)
     tool_name = Column(String, nullable = True)
     delegate_agent_name = Column(String, nullable = True)
     content = Column(JSONB, nullable = True)
