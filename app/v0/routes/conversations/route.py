@@ -15,6 +15,7 @@ from core.common.sse import TitleEvent
 from core.service import stream_conversation
 from db.base import get_db, get_db_session
 from db.operations.conversations import conversations_ops
+from db.operations.messages import messages_ops
 from db.operations.users import users_ops
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,7 @@ async def conversation(
         'user_id': request.user_id,
         'title': _placeholder_title(query),
     })
+    user_message = messages_ops.create_user_message(db, created.id, query)
 
     async def generate_sse_events():
         try:
@@ -60,6 +62,7 @@ async def conversation(
                 conversation_id = created.id,
                 user_id = created.user_id,
                 title = created.title,
+                user_message_id = user_message.id,
             ):
                 if isinstance(fragment, TitleEvent):
                     with get_db_session() as title_db:
