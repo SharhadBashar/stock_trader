@@ -41,7 +41,6 @@ class Message(Base):
             content: [JSONB] - message body
             status: [String] - pending, running, completed, error, or cancelled
             visibility: [String] - none, agent, human, or all
-            log: [JSONB] - span_id, cost_usd, latency_seconds, ...
             provider_message_id: [String] - upstream provider message id
             created_at: [DateTime]
             updated_at: [DateTime]
@@ -116,7 +115,6 @@ class Message(Base):
     content = Column(JSONB, nullable = True)
     status = Column(String, nullable = True)
     visibility = Column(String, nullable = False, default = 'all')
-    log = Column(JSONB, nullable = True)
     provider_message_id = Column(String, nullable = True)
     created_at = Column(DateTime, nullable = False, default = datetime.now)
     updated_at = Column(DateTime, nullable = False, default = datetime.now)

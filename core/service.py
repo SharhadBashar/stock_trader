@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import time
 import uuid
 from datetime import datetime
 
@@ -97,23 +96,6 @@ def _delegate_agent_name(tool_name: str, args: Any) -> str | None:
     return None
 
 
-def _span_log(latency_seconds: float | None = None) -> dict[str, Any] | None:
-    log: dict[str, Any] = {}
-    if latency_seconds is not None:
-        log['latency_seconds'] = round(latency_seconds, 3)
-    try:
-        from opentelemetry.trace import get_current_span
-
-        span = get_current_span()
-        ctx = span.get_span_context()
-        if ctx.is_valid:
-            log['span_id'] = format(ctx.span_id, '016x')
-            log['trace_id'] = format(ctx.trace_id, '032x')
-    except Exception:
-        pass
-    return log or None
-
-
 @instrument_logfire(project = 'conversation_title')
 async def generate_conversation_title(query: str) -> ConversationTitle:
     logfire = get_logfire()
@@ -192,7 +174,6 @@ async def stream(
     current_text_part_id: str | None = None
     current_collected_raw_output = ''
     tool_call_ids_to_tool_call_part: dict[str, FunctionToolCallEvent] = {}
-    start_time = time.time()
     user_message_id: uuid.UUID | None = None
     if conversation_id is not None:
         user_message = _create_message(
@@ -342,7 +323,6 @@ async def stream(
                                 status = 'completed',
                                 agent_name = orchestrator_agent.name,
                                 model = model_name,
-                                log = _span_log(time.time() - start_time),
                             )
                             if user_message_id is not None:
                                 with get_db_session() as db:

@@ -77,7 +77,6 @@ class MessagesDBOperations(BaseDBOperations[Message]):
         delegate_agent_name: str | None = None,
         agent_name: str | None = None,
         model: str | None = None,
-        log: dict | None = None,
     ) -> Message:
         row = self.create(db, {
             'conversation_id': conversation_id,
@@ -94,7 +93,6 @@ class MessagesDBOperations(BaseDBOperations[Message]):
             'content': jsonable(content),
             'status': status,
             'visibility': 'all',
-            'log': jsonable(log),
         })
         self._touch_conversation(db, conversation_id)
         db.commit()
